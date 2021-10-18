@@ -93,11 +93,11 @@ optimizer:
 training:
   random_seed: 456
   batch_size: 1
-  simulated_batch_size: 205         # Gradient Accumulation. After how many samples the model parameters should be updated
-  simulated_batch_size_valid: 18  # Over how many samples validation metrics should be calculated
+  simulated_batch_size: 64          # Gradient Accumulation. After how many samples the model parameters should be updated
+  simulated_batch_size_valid: 512   # Over how many samples validation metrics should be calculated
   accumulate_tokens_batch: False
-  validate_every: 1              # Counted in number of parameter updates (simulated_batch_size). How often approximate evaluation should be done
-  persistent_snapshot_every: 1000  # Counted in loop iterations (batch_size). Also starts a full evaluation on the validation set to guide early stopping
+  validate_every: 1                 # Counted in number of parameter updates (simulated_batch_size). How often approximate evaluation should be done
+  persistent_snapshot_every: 1000   # Counted in loop iterations (batch_size). Also starts a full evaluation on the validation set to guide early stopping
   early_stopping_patience: 10       # How often the model evaluation can be worse than the current best before training is stopped
   max_validation_samples: 50000     # Limit number of samples for full evaluation on larger datasets to speed up training
   metrics:                          # Which metrics to log

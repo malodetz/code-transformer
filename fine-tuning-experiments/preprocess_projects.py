@@ -63,6 +63,10 @@ def process_jsons() -> None:
     with open(test_path, "w") as f:
         json.dump(test, f)
 
+    stats = {"train": len(train), "val": len(valid), "test": len(test)}
+    with open(os.path.join("data", "stage2", "stats.json"), "w") as f:
+        json.dump(stats, f)
+
 
 def process_single(project_name: str) -> None:
     print(f"Processing {project_name}...")
