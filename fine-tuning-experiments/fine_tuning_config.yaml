@@ -71,7 +71,6 @@ training:
   simulated_batch_size: 64
   simulated_batch_size_valid: 18
   accumulate_tokens_batch: false
-  validate_every: 1
   persistent_snapshot_every: 205
   early_stopping_patience: 10
   max_validation_samples: 50000
