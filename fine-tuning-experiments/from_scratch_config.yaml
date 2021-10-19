@@ -67,7 +67,7 @@ optimizer:
   reg_scale: 3.0e-05
 training:
   random_seed: 456
-  batch_size: 4
+  batch_size: 8
   simulated_batch_size: 64
   simulated_batch_size_valid: 18
   accumulate_tokens_batch: false
