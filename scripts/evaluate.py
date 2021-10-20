@@ -127,8 +127,6 @@ if __name__ == '__main__':
     pad_id = word_vocab[PAD_TOKEN]
     unk_id = word_vocab[UNKNOWN_TOKEN]
 
-    print(word_vocab)
-
     f1_scores = []
     precisions = []
     recalls = []

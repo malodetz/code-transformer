@@ -126,6 +126,7 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
         if p == "" or t == "":
             bleus.append(0)
             chrfs.append(0)
+            continue
         bleus.append(calc_bleu(p, t))
         chrfs.append(calc_chrf(p, t))
 
