@@ -35,10 +35,10 @@ def fine_tune_and_save_metrics(project_name: str) -> None:
 
     part_sizes = json.load(open(os.path.join(data_path, "stats.json"), "r"))
 
-    config_path = os.path.join("fine-tuning-experiments", "from_scratch_config.yaml")
-    modify_config(config_path, part_sizes)
-    cmd = f"python -m scripts.run-experiment {config_path}"
-    subprocess.check_call(cmd, shell=True)
+    # config_path = os.path.join("fine-tuning-experiments", "from_scratch_config.yaml")
+    # modify_config(config_path, part_sizes)
+    # cmd = f"python -m scripts.run-experiment {config_path}"
+    # subprocess.check_call(cmd, shell=True)
     model, snapshot = get_run_id_and_snapshot()
     metrics_new_after = calculate_metrics(model, snapshot)
     with open(os.path.join(result_path, "metrics_new_after.json"), "w") as file:
