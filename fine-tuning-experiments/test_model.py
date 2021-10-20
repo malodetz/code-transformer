@@ -114,7 +114,8 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
 
     ignore_index = [word_vocab.vocabulary[token] for token in [UNKNOWN_TOKEN, SOS_TOKEN, PAD_TOKEN, EOS_TOKEN]]
     to_words = lambda tensor: " ".join(
-        word_vocab.reverse_vocabulary[token.item()] for token in tensor if token.item() not in ignore_index)
+        word_vocab.reverse_vocabulary[token.item()] for token in tensor if
+        token.item() not in ignore_index and token.item() in word_vocab.reverse_vocabulary.keys())
 
     predictions = [to_words(prediction) for prediction in predictions]
     targets = [to_words(target) for target in labels]
