@@ -19,10 +19,12 @@ def modify_config(config_path: str, part_sizes) -> None:
 
 def get_run_id_and_snapshot():
     models = os.path.join("models", "ct_code_summarization")
-    names = os.listdir(models)
-    model = sorted(names)[-1]
+    names = map(lambda x: int(''.join([d for d in x if d in "0123456789"])),
+                [model for model in os.listdir(models)])
+    model = f"CT-{sorted(names)[-1]}"
     snapshot = sorted(os.listdir(os.path.join(models, model)))[-1]
     snapshot = "".join(x for x in snapshot if x in "0123456789")
+    print(model, snapshot)
     return model, snapshot
 
 
@@ -35,10 +37,10 @@ def fine_tune_and_save_metrics(project_name: str) -> None:
 
     part_sizes = json.load(open(os.path.join(data_path, "stats.json"), "r"))
 
-    # config_path = os.path.join("fine-tuning-experiments", "from_scratch_config.yaml")
-    # modify_config(config_path, part_sizes)
-    # cmd = f"python -m scripts.run-experiment {config_path}"
-    # subprocess.check_call(cmd, shell=True)
+    config_path = os.path.join("fine-tuning-experiments", "from_scratch_config.yaml")
+    modify_config(config_path, part_sizes)
+    cmd = f"python -m scripts.run-experiment {config_path}"
+    subprocess.check_call(cmd, shell=True)
     model, snapshot = get_run_id_and_snapshot()
     metrics_new_after = calculate_metrics(model, snapshot)
     with open(os.path.join(result_path, "metrics_new_after.json"), "w") as file:
