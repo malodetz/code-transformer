@@ -28,9 +28,7 @@ def save_metric_plot(metric_name: str):
 
     metric_name = metric_name.upper()
     ax.plot(np.arange(1, metric_new.shape[0] + 1), np.sort(metric_new), "o", label="From scratch")
-    ax.plot(
-        np.arange(1, metric_trained_before.shape[0] + 1), np.sort(metric_trained_before), "o", label="Pretrained"
-    )
+    ax.plot(np.arange(1, metric_trained_before.shape[0] + 1), np.sort(metric_trained_before), "o", label="Pretrained")
     ax.plot(np.arange(1, metric_trained_after.shape[0] + 1), np.sort(metric_trained_after), "o", label="Fine-tuned")
     ax.legend()
 
@@ -39,8 +37,10 @@ def save_metric_plot(metric_name: str):
     fig.suptitle(f"{metric_name} distribution", fontweight="bold")
     fig.savefig(os.path.join("images", f"{metric_name}.png"))
 
-    print(f"{metric_name} mean improved", np.mean(metric_trained_after - metric_trained_before))
+    print(f"{metric_name} mean before", np.mean(metric_trained_before))
     print(f"{metric_name} mean from scratch", np.mean(metric_new))
+    print(f"{metric_name} mean after", np.mean(metric_trained_after))
+    print(f"{metric_name} mean improved", np.mean(metric_trained_after - metric_trained_before))
 
 
 if __name__ == "__main__":

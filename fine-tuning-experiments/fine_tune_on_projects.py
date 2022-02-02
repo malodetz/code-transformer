@@ -12,15 +12,13 @@ from .test_model import calculate_metrics
 def modify_config(config_path: str, part_sizes) -> None:
     config = OmegaConf.load(open(config_path, "r"))
     config["training"]["simulated_batch_size_valid"] = part_sizes["val"]
-    config["training"]["persistent_snapshot_every"] = ceil(
-        part_sizes["train"] / config["training"]["batch_size"])
+    config["training"]["persistent_snapshot_every"] = ceil(part_sizes["train"] / config["training"]["batch_size"])
     OmegaConf.save(config, config_path)
 
 
 def get_run_id_and_snapshot():
     models = os.path.join("models", "ct_code_summarization")
-    names = map(lambda x: int(''.join([d for d in x if d in "0123456789"])),
-                [model for model in os.listdir(models)])
+    names = map(lambda x: int("".join([d for d in x if d in "0123456789"])), [model for model in os.listdir(models)])
     model = f"CT-{sorted(names)[-1]}"
     snapshot = sorted(os.listdir(os.path.join(models, model)))[-1]
     snapshot = "".join(x for x in snapshot if x in "0123456789")

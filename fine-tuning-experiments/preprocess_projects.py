@@ -20,7 +20,7 @@ def mask_recursive_calls(sample):
     delta = 0
     for i in range(1, len(calls)):
         start = calls[i] + 1 + delta
-        new_code = new_code[:start] + mask + new_code[start + length:]
+        new_code = new_code[:start] + mask + new_code[start + length :]
         delta += len(mask) - length
     sample["code"] = new_code
     return sample
@@ -98,23 +98,19 @@ def process_single(project_name: str) -> None:
 
     os.makedirs(stage2_path)
     copy(os.path.join("binaries", "vocabularies.p.gzip"), stage2_path)
-    copytree(os.path.join(stage1_path, "valid"),
-             os.path.join(stage1_path, "real_valid"))
+    copytree(os.path.join(stage1_path, "valid"), os.path.join(stage1_path, "real_valid"))
     rmtree(os.path.join(stage1_path, "valid"))
-    copytree(os.path.join(stage1_path, "train"),
-             os.path.join(stage1_path, "valid"))
+    copytree(os.path.join(stage1_path, "train"), os.path.join(stage1_path, "valid"))
     cmd = (
         f"python -m scripts.run-preprocessing code_transformer/experiments/preprocessing/preprocess-2.yaml "
         f"java-small valid"
     )
     subprocess.check_call(cmd, shell=True)
 
-    copytree(os.path.join(stage2_path, "valid"),
-             os.path.join(stage2_path, "train"))
+    copytree(os.path.join(stage2_path, "valid"), os.path.join(stage2_path, "train"))
     rmtree(os.path.join(stage1_path, "valid"))
     rmtree(os.path.join(stage2_path, "valid"))
-    copytree(os.path.join(stage1_path, "real_valid"),
-             os.path.join(stage1_path, "valid"))
+    copytree(os.path.join(stage1_path, "real_valid"), os.path.join(stage1_path, "valid"))
     rmtree(os.path.join(stage1_path, "real_valid"))
 
     for part in ["valid", "test"]:

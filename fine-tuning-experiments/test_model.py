@@ -6,8 +6,13 @@ import numpy as np
 from tqdm import tqdm
 from sacrebleu.metrics import BLEU, CHRF
 
-from code_transformer.modeling.constants import UNKNOWN_TOKEN, SOS_TOKEN, EOS_TOKEN, PAD_TOKEN, \
-    NUM_SUB_TOKENS_METHOD_NAME
+from code_transformer.modeling.constants import (
+    UNKNOWN_TOKEN,
+    SOS_TOKEN,
+    EOS_TOKEN,
+    PAD_TOKEN,
+    NUM_SUB_TOKENS_METHOD_NAME,
+)
 from code_transformer.modeling.modelmanager.code_transformer import CodeTransformerModelManager
 from code_transformer.preprocessing.datamanager.base import batch_to_device, batch_filter_distances
 from code_transformer.preprocessing.datamanager.preprocessed import CTBufferedDataManager
@@ -42,10 +47,9 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
     model = model.cuda()
 
     config = model_manager.load_config(run_id)
-    data_manager = CTBufferedDataManager(DATA_PATH_STAGE_2,
-                                         config['data_setup']['language'],
-                                         partition=partition,
-                                         shuffle=False)
+    data_manager = CTBufferedDataManager(
+        DATA_PATH_STAGE_2, config["data_setup"]["language"], partition=partition, shuffle=False
+    )
     vocabularies = data_manager.load_vocabularies()
     if len(vocabularies) == 3:
         word_vocab, _, _ = vocabularies
@@ -53,27 +57,30 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
         word_vocab, _, _, _ = vocabularies
 
     token_distances = None
-    if TokenDistancesTransform.name in config['data_transforms']['relative_distances']:
-        num_bins = data_manager.load_config()['binning']['num_bins']
-        distance_binning_config = config['data_transforms']['distance_binning']
-        if distance_binning_config['type'] == 'exponential':
-            trans_func = ExponentialBinning(distance_binning_config['growth_factor'])
+    if TokenDistancesTransform.name in config["data_transforms"]["relative_distances"]:
+        num_bins = data_manager.load_config()["binning"]["num_bins"]
+        distance_binning_config = config["data_transforms"]["distance_binning"]
+        if distance_binning_config["type"] == "exponential":
+            trans_func = ExponentialBinning(distance_binning_config["growth_factor"])
         else:
             trans_func = EqualBinning()
         token_distances = TokenDistancesTransform(
-            DistanceBinning(num_bins, distance_binning_config['n_fixed_bins'], trans_func))
+            DistanceBinning(num_bins, distance_binning_config["n_fixed_bins"], trans_func)
+        )
 
-    use_pointer_network = config['data_setup']['use_pointer_network']
+    use_pointer_network = config["data_setup"]["use_pointer_network"]
 
-    dataset = CTCodeSummarizationDatasetNoPunctuation(data_manager,
-                                                      num_sub_tokens_output=NUM_SUB_TOKENS_METHOD_NAME,
-                                                      use_pointer_network=use_pointer_network,
-                                                      max_num_tokens=LIMIT_TOKENS,
-                                                      token_distances=token_distances)
+    dataset = CTCodeSummarizationDatasetNoPunctuation(
+        data_manager,
+        num_sub_tokens_output=NUM_SUB_TOKENS_METHOD_NAME,
+        use_pointer_network=use_pointer_network,
+        max_num_tokens=LIMIT_TOKENS,
+        token_distances=token_distances,
+    )
 
     dataloader = DataLoader(dataset, collate_fn=dataset.collate_fn, batch_size=BATCH_SIZE)
 
-    relative_distances = config['data_transforms']['relative_distances']
+    relative_distances = config["data_transforms"]["relative_distances"]
 
     pad_id = word_vocab[PAD_TOKEN]
     unk_id = word_vocab[UNKNOWN_TOKEN]
@@ -93,8 +100,7 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
         with torch.no_grad():
             output = model.forward_batch(batch).cpu()
 
-        f1, prec, rec = f1_score(output.logits, label, pad_id=pad_id, unk_id=unk_id,
-                                 output_precision_recall=True)
+        f1, prec, rec = f1_score(output.logits, label, pad_id=pad_id, unk_id=unk_id, output_precision_recall=True)
         f1_scores.append(f1)
         precisions.append(prec)
         recalls.append(rec)
@@ -114,8 +120,10 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
 
     ignore_index = [word_vocab.vocabulary[token] for token in [UNKNOWN_TOKEN, SOS_TOKEN, PAD_TOKEN, EOS_TOKEN]]
     to_words = lambda tensor: " ".join(
-        word_vocab.reverse_vocabulary[token.item()] for token in tensor if
-        token.item() not in ignore_index and token.item() in word_vocab.reverse_vocabulary.keys())
+        word_vocab.reverse_vocabulary[token.item()]
+        for token in tensor
+        if token.item() not in ignore_index and token.item() in word_vocab.reverse_vocabulary.keys()
+    )
 
     predictions = [to_words(prediction) for prediction in predictions]
     targets = [to_words(target) for target in labels]
@@ -138,11 +146,11 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
     return results
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("run_id", type=str)
     parser.add_argument("snapshot_iteration", type=str)
-    parser.add_argument("partition", type=str, choices=['train', 'valid', 'test'], default='test')
+    parser.add_argument("partition", type=str, choices=["train", "valid", "test"], default="test")
     args = parser.parse_args()
 
     print(calculate_metrics(args.run_id, args.snapshot_iteration, args.partition))
