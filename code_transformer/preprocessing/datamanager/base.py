@@ -273,7 +273,7 @@ class DataLoaderWrapper(DataManager):
         pass
 
 
-CTBatch = collections.namedtuple("CTBatch", ['tokens', 'token_types', 'node_types', 'relative_distances',
+CTBatch = collections.namedtuple("CTBatch", ['tokens', 'token_types', 'node_types', 'relative_distances', 'func_names',
                                                          'distance_names', 'sequence_lengths', 'pad_mask', 'labels',
                                                          'perm_mask', 'target_mapping', 'target_mapping_per_token',
                                                          'extended_vocabulary',

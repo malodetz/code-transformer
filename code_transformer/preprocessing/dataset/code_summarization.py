@@ -216,6 +216,7 @@ class CTCodeSummarizationDataset(CTBaseDataset):
         attention_masks = []
         target_mapping_per_token = []
         target_mapping = []
+        func_names = []
 
         for sample in batch:
             attention_mask = torch.zeros((seq_len, seq_len))
@@ -226,6 +227,8 @@ class CTCodeSummarizationDataset(CTBaseDataset):
                 attention_mask[:, idx] = 1  # No position can attend func tokens
                 attention_mask[idx, 0] = 0  # func tokens can attend [CLS]
             attention_masks.append(attention_mask)
+
+            func_names.append(sample.func_name)
 
             label = torch.tensor([sample.label])  # There is only one label per sample, the function name
             labels.append(label)
@@ -242,6 +245,7 @@ class CTCodeSummarizationDataset(CTBaseDataset):
         return CTBatch(tokens=collated_batch.tokens, token_types=collated_batch.token_types,
                        node_types=collated_batch.node_types,
                        relative_distances=collated_batch.relative_distances,
+                       func_names=func_names,
                        distance_names=collated_batch.distance_names,
                        sequence_lengths=collated_batch.sequence_lengths, pad_mask=collated_batch.pad_mask,
                        labels=torch.stack(labels), perm_mask=torch.stack(attention_masks),

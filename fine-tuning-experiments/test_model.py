@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from typing import List, Tuple, Union, Dict
 
 import torch
 from torch.utils.data import DataLoader
@@ -39,7 +40,21 @@ def calc_bleu(prediction: str, target: str) -> float:
     return result.score
 
 
-def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "test"):
+def camel_case_split(s: str) -> List[str]:
+    idx = list(map(str.isupper, s))
+    l = [0]
+    for (i, (x, y)) in enumerate(zip(idx, idx[1:])):
+        if x and not y:
+            l.append(i)
+        elif not x and y:
+            l.append(i + 1)
+    l.append(len(s))
+    return list(map(str.lower, [s[x:y] for x, y in zip(l, l[1:]) if x < y]))
+
+
+def calculate_metrics(
+    run_id: str, snapshot_iteration: str, partition: str = "test", save_predictions: bool = False
+) -> Union[Dict, Tuple[Dict, List[str]]]:
     model_manager = CodeTransformerModelManager()
 
     model = model_manager.load_model(run_id, snapshot_iteration, gpu=True)
@@ -106,9 +121,9 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
         recalls.append(rec)
 
         batch_logits = output.logits.detach().cpu()
-
         predictions.extend(batch_logits.argmax(-1).squeeze(1))
-        labels.extend(label.squeeze(1))
+
+        labels.extend(batch.func_names)
 
         progress.set_description()
         del batch
@@ -116,26 +131,24 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
     data_manager.shutdown()
 
     predictions = torch.stack(predictions)
-    labels = torch.stack(labels)
-
     ignore_index = [word_vocab.vocabulary[token] for token in [UNKNOWN_TOKEN, SOS_TOKEN, PAD_TOKEN, EOS_TOKEN]]
     to_words = lambda tensor: " ".join(
         word_vocab.reverse_vocabulary[token.item()]
         for token in tensor
         if token.item() not in ignore_index and token.item() in word_vocab.reverse_vocabulary.keys()
     )
-
     predictions = [to_words(prediction) for prediction in predictions]
-    targets = [to_words(target) for target in labels]
+    targets = [" ".join(camel_case_split(target)) for target in labels]
+    assert len(targets) == len(predictions)
+
+    method_names = []
 
     bleus = []
     chrfs = []
     for p, t in zip(predictions, targets):
-        if p == "" or t == "":
-            bleus.append(0)
-            chrfs.append(0)
-            continue
         bleus.append(calc_bleu(p, t))
+        if save_predictions:
+            method_names.append(f"{t.replace(' ', '|')} {p.replace(' ', '|')}\n")
         chrfs.append(calc_chrf(p, t))
 
     metric_names = ["f1", "precision", "recall", "bleu", "chrf"]
@@ -143,7 +156,10 @@ def calculate_metrics(run_id: str, snapshot_iteration: str, partition: str = "te
 
     results = {metric: np.asarray(data).mean() for metric, data in zip(metric_names, metric_data)}
 
-    return results
+    if save_predictions:
+        return results, method_names
+    else:
+        return results
 
 
 if __name__ == "__main__":

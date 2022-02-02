@@ -11,13 +11,13 @@ def save_metric_plot(metric_name: str):
     for project in os.listdir("results"):
         project_folder = os.path.join("results", project)
 
-        with open(os.path.join(project_folder, "metrics_new_after.json"), "r") as f:
+        with open(os.path.join(project_folder, "new_after.json"), "r") as f:
             metric_new.append(json.load(f)[metric_name])
 
-        with open(os.path.join(project_folder, "metrics_trained_before.json"), "r") as f:
+        with open(os.path.join(project_folder, "trained_before.json"), "r") as f:
             metric_trained_before.append(json.load(f)[metric_name])
 
-        with open(os.path.join(project_folder, "metrics_trained_after.json"), "r") as f:
+        with open(os.path.join(project_folder, "trained_after.json"), "r") as f:
             metric_trained_after.append(json.load(f)[metric_name])
 
     metric_new = np.asarray(metric_new)
