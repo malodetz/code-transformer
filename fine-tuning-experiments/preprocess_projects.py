@@ -7,7 +7,15 @@ from argparse import ArgumentParser
 
 
 def get_sample_code(sample) -> str:
-    return "".join(sample["code"].split())
+    code = "".join(sample["code"].split())
+    if "doc" in sample:
+        doc = "".join(sample["doc"].split())
+        code = code.replace(doc, "")
+    bad_symbols = [" ", "\t", "\r", "\n", "\\", "/", "*"]
+    idx = 0
+    while code[idx] in bad_symbols:
+        idx += 1
+    return code[idx:]
 
 
 def mask_recursive_calls(sample):
