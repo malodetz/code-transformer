@@ -69,9 +69,9 @@ training:
   random_seed: 456
   batch_size: 8
   simulated_batch_size: 64
-  simulated_batch_size_valid: 18
+  simulated_batch_size_valid: 3
   accumulate_tokens_batch: false
-  persistent_snapshot_every: 52
+  persistent_snapshot_every: 5
   early_stopping_patience: 10
   max_validation_samples: 50000
   metrics:
